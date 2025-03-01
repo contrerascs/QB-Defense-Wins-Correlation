@@ -3,7 +3,7 @@ import csv
 def filter_qb(year):
     # Ruta del archivo CSV de entrada
     input_file = f'data/nfl_passing_{year}.csv'
-    output_file = f'data/QB_STATS{year}.csv'
+    output_file = f'data/QB_STATS_{year}.csv'
 
     # Abrimos el archivo CSV de entrada
     with open(input_file, 'r') as f:
@@ -29,5 +29,22 @@ def filter_qb(year):
 
     print(f"Archivo CSV con solo QBs guardado como {output_file}")
 
+def delete_rk(year):
+    # Archivo de entrada/salida (mismo archivo para sobrescribir)
+    file_path =f'data/QB_STATS{year}.csv'
+    output_file = f'data/QB_STATS_{year}.csv'
+
+    # Leer el archivo y eliminar la primera columna
+    with open(file_path, "r", newline="") as f:
+        reader = csv.reader(f)
+        data = [row[1:] for row in reader]  # Elimina la primera columna de cada fila
+
+    # Sobrescribir el archivo original sin la columna "Rk"
+    with open(output_file, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(data)
+
+    print(f"Se ha sobrescrito '{file_path}' sin la columna 'Rk'.")
+
 for year in range(1985,2025):
-    filter_qb(year)
+    delete_rk(year)
