@@ -2,7 +2,7 @@ import csv
 import os
 import pandas as pd
 
-def clean_data(year):
+def clean_qb_data(year):
     # Ruta del archivo de texto
     input_file = f'data_txt/passing_stats/nfl_passing_{year}.txt'
     output_file = f'data/qbs/qb_stats_{year}.csv'
@@ -43,7 +43,7 @@ def clean_data(year):
 
     print(f"Archivo CSV limpio guardado como {output_file}")
 
-def clean_defensive_data(year):
+def clean_defense_data(year):
     import pandas as pd
 
     # Cargar el archivo TXT
@@ -89,7 +89,7 @@ def clean_defensive_data(year):
 
     print(f"Proceso completado. Archivo 'Defense_Stats_{year}.csv' generado correctamente.")
 
-def custom_data(year):
+def custom_defense_data(year):
     data = pd.read_csv(f'data/defense/defense_stats_{year}.csv')
     
     # Eliminar la fila 2 (índice 1) sin verificar su contenido
@@ -130,9 +130,92 @@ def custom_qb_data(year):
     data.to_csv(f'data/qbs/qb_stats_{year}.csv', index=False)
     print(f"Datos finales guardados en 'data/qbs/qb_stats_{year}.csv'")
 
+def filter_qb(year):
+    # Cargar el archivo CSV
+    file_path = f'data/qbs/qb_stats_{year}.csv'
+    df = pd.read_csv(file_path)
+
+    # Filtrar solo jugadores con posición 'QB'
+    df = df[df['Pos'] == 'QB']
+
+    # Filtrar jugadores con al menos 1 partido iniciado (GS >= 1)
+    df = df[df['GS'] >= 1]
+
+    # Filtrar jugadores con 'QBrec' no vacío y distinto de '0-0-0'
+    df = df[df['QBrec'].notna() & (df['QBrec'].str.strip() != '') & (df['QBrec'] != '0-0-0')]
+
+    # Eliminar la última fila del DataFrame
+    df = df[:-1]
+
+    # Sobrescribir el archivo CSV con los datos filtrados
+    df.to_csv(file_path, index=False)
+
+    print("Archivo filtrado y sobrescrito exitosamente.")
+
+def clean_kickers_data(year):
+    # Cargar el archivo TXT
+    with open(f"data_txt/kickers/kickers_stats_{year}.txt", "r", encoding="utf-8") as file:
+        lines = file.readlines()
+
+    # Eliminar la primera línea si no es un encabezado útil
+    lines = lines[1:]
+
+    # Eliminar líneas vacías
+    lines = [line.strip() for line in lines if line.strip()]
+
+    # Eliminar filas de títulos de sección (si empiezan con ",,,," es porque no contienen datos útiles)
+    lines = [line for line in lines if not line.startswith(",,,,")]
+
+    # Asegurar que todas las filas tengan el mismo número de columnas
+    max_cols = max(len(line.split(",")) for line in lines)
+    data = [line.split(",") + [""] * (max_cols - len(line.split(","))) for line in lines]
+
+    # Convertir a DataFrame
+    df = pd.DataFrame(data)
+
+    # Definir nombres de columnas
+    column_names = [
+        "Rk", "Player", "Age", "Team", "Pos", "G", "GS", 
+        "FGA-0-19", "FGM-0-19", "FGA-20-29", "FGM-20-29", "FGA-30-39", "FGM-30-39", 
+        "FGA-40-49", "FGM-40-49", "FGA-50+", "FGM-50+","TotalFGA", "TotalFGM", "Lng", "FG%", 
+        "XPA", "XPM", "XP%","KO", "KOYds", "TB", "TB%", "KOAvg", "Awards", "Player-additional"
+    ]
+    
+    # Truncar en caso de que haya más columnas de las esperadas
+    df.columns = column_names[:df.shape[1]]
+
+    # Eliminar columnas nuevas de 2024 que no existían en 1985
+    df = df.drop(columns=["Rk", "KO", "KOYds", "TB", "TB%", "KOAvg"], errors='ignore')
+
+    df = df.dropna(subset=["Pos", "TotalFGA"])  # Eliminar filas donde estas columnas estén vacías
+
+    df["TotalFGA"] = pd.to_numeric(df["TotalFGA"], errors='coerce')
+
+    # Filtrar solo jugadores con posición 'K'
+    df = df[df["Pos"] == 'K']
+
+    # Filtrar jugadores con al menos 10 intentos (TotalFGA >= 10)
+    df = df[df["TotalFGA"] >= 10]
+
+    # Eliminar la última fila del DataFrame (promedios de la liga)
+    df = df[:-1]
+
+    # Verificar estructura antes de guardar
+    print(df.head())  
+
+    # Guardar como CSV limpio
+    df.to_csv(f'data/kickers/kickers_stats_{year}.csv', index=False, encoding="utf-8")
+
+    print("Archivo TXT filtrado y sobrescrito exitosamente.")
+
+def rename_defense(year):
+    df = pd.read_csv(f'data/defense/defense_stats_{year}.csv')
+
+    # Suponiendo que quieres renombrar la columna "antiguo_nombre" a "nuevo_nombre"
+    df = df.rename(columns={'Tm': 'Team'})
+
+    # Paso 3: Guardar el DataFrame con el nuevo nombre de columna en un nuevo archivo CSV
+    df.to_csv(f'data/defense/defense_stats_{year}.csv', index=False)
 
 for year in range(1985,2025):
-    clean_data(year)
-    custom_qb_data(year)
-    #clean_defensive_data(year)
-    #custom_data(year)
+    pass
