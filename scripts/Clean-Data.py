@@ -217,5 +217,37 @@ def rename_defense(year):
     # Paso 3: Guardar el DataFrame con el nuevo nombre de columna en un nuevo archivo CSV
     df.to_csv(f'data/defense/defense_stats_{year}.csv', index=False)
 
-for year in range(1985,2025):
-    pass
+def join_files_csv():
+    # Ruta a la carpeta con los archivos CSV
+    data_folder = 'data/kickers'
+
+    # Lista para almacenar los DataFrames
+    qb_dataframes = []
+
+    # Recorrer todos los archivos de QB
+    for filename in os.listdir(data_folder):
+        if filename.startswith('kickers_stats_') and filename.endswith('.csv'):
+            # Extraer el año del nombre del archivo
+            year = int(filename.split('_')[2].split('.')[0])
+            # Cargar el archivo CSV
+            df = pd.read_csv(os.path.join(data_folder, filename))
+            # Agregar una columna 'Season'
+            df['Season'] = year
+            #Eliminar columna 'Player-additional'
+            if 'Player-additional' in df.columns:
+                df = df.drop(columns=['Player-additional'])
+            # Agregar el DataFrame a la lista
+            qb_dataframes.append(df)
+
+    # Unir todos los DataFrames en uno solo
+    qb_consolidated = pd.concat(qb_dataframes, ignore_index=True)
+
+
+    # Reemplazar "0" con NaN en columnas numéricas
+    qb_consolidated.replace(0, float('nan'), inplace=True)
+
+    # Convertir columnas numéricas
+    qb_consolidated = qb_consolidated.apply(pd.to_numeric, errors='ignore')
+
+    # Guardar el DataFrame consolidado en un nuevo archivo CSV
+    qb_consolidated.to_csv('data/processed/kickers_stats.csv', index=False)
