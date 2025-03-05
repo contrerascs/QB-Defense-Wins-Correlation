@@ -55,7 +55,8 @@ def teams(player_name, qb_data):
         'NWE': 'New England Patriots', 'NOR': 'New Orleans Saints', 'NYG': 'New York Giants',
         'NYJ': 'New York Jets', 'PHI': 'Philadelphia Eagles', 'PIT': 'Pittsburgh Steelers',
         'SFO': 'San Francisco 49ers', 'SEA': 'Seattle Seahawks', 'TAM': 'Tampa Bay Buccaneers',
-        'TEN': 'Tennessee Titans', 'WAS': 'Washington Commanders' , 'STL': 'St. Louis Rams'
+        'TEN': 'Tennessee Titans', 'WAS': 'Washington Commanders' , 'STL': 'St. Louis Rams','RAI':'Los Angeles Raiders',
+        'RAM': 'Los Angeles Rams', 'SDG': 'San Diego Chargers'
     }
 
     # Filtrar dataset para obtener las temporadas del QB seleccionado

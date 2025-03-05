@@ -93,7 +93,7 @@ def render_plots(qb_data, selected_qb, selected_season):
         template="plotly_dark"
     )
 
-    # Nueva Gráfica: Desempeño en el pase
+    #Gráfica: Desempeño en el pase
     pass_performance_data = pd.DataFrame({
         "Métrica": [ "Y/A", "AY/A", "Y/C"],
         "Valor": [qb_stats["Y/A"], qb_stats["AY/A"], qb_stats["Y/C"]]
@@ -118,14 +118,60 @@ def render_plots(qb_data, selected_qb, selected_season):
         template="plotly_dark"
     )
 
+    ## 🔹 Gráfica de barras: Capturas y Yardas Perdidas
+    pressure_data = pd.DataFrame({
+        "Métrica": ["Capturas", "Yardas Perdidas"],
+        "Valor": [qb_stats["Sk"], qb_stats["Yds.1"]]
+    })
+
+    fig_pressure = px.bar(
+        pressure_data,
+        x="Métrica",
+        y="Valor",
+        text="Valor",
+        title=f"Presión sobre {selected_qb} en {selected_season}",
+        color="Métrica",
+        color_discrete_map={"Capturas": "red", "Yardas Perdidas": "orange"}
+    )
+    fig_pressure.update_layout(
+        xaxis_title="Métrica",
+        yaxis_title="Cantidad",
+        template="plotly_dark"
+    )
+
+    ## 🔹 Gauge Chart: Porcentaje de Capturas (Sk%)
+    fig_sk_rate = go.Figure(go.Indicator(  
+    mode="gauge+number",  
+    value=qb_stats["Sk%"],  
+    number={"suffix": "%"},  
+    gauge={  
+        "axis": {"range": [0, 15]},  # Rango de referencia para Sk%  
+        "bar": {"color": "white"},  # Color de la barra que representa el valor  
+        "steps": [  
+            {"range": [0, 5], "color": "green"},  # Rango de 0 a 5  
+            {"range": [5, 10], "color": "yellow"}, # Rango de 5 a 10  
+            {"range": [10, 15], "color": "red"}    # Rango de 10 a 15  
+        ],  
+        "threshold": {  
+            "line": {"color": "red", "width": 4},  # Línea de umbral  
+            "thickness": 1,  
+            "value": qb_stats["Sk%"]  
+            }  
+        }  
+    ))
+    fig_sk_rate.update_layout(
+        title=f"Porcentaje de Capturas de {selected_qb} en {selected_season}",
+        template="plotly_dark")
+
     # Mostrar las gráficas en Streamlit
     c1, c2 = st.columns(2)
     with c1:
         st.plotly_chart(fig_pie, use_container_width=True)
-        st.plotly_chart(fig_pass_performance, use_container_width=True)
+        st.plotly_chart(fig_sk_rate, use_container_width=True)
+        st.plotly_chart(fig_pressure, use_container_width=True)
 
     with c2:
-        st.plotly_chart(fig_clutch, use_container_width=True)
+        st.plotly_chart(fig_pass_performance, use_container_width=True)
         st.plotly_chart(fig_comparison, use_container_width=True)
     
 def calculate_custom_epa(qb_data, selected_qb, selected_season):
@@ -144,9 +190,10 @@ def calculate_custom_epa(qb_data, selected_qb, selected_season):
     # Factores ponderados para calcular EPA/play personalizado
     epa = (
         (qb_stats["ANY/A"] * 0.4) +  # Yardas netas ajustadas por intento
-        (qb_stats["NY/A"] * 0.3) +   # Yardas netas por intento
+        (qb_stats["NY/A"] * 0.3) -   # Yardas netas por intento
+        ((100 - qb_stats['Cmp%']) * 0.2) +
         (qb_stats["TD%"] * 0.2) -    # Porcentaje de touchdowns
-        (qb_stats["Int%"] * 0.3) +   # Penalización por intercepciones
+        (qb_stats["Int%"] * 0.4) +   # Penalización por intercepciones
         (qb_stats["Succ%"] * 0.2) +  # Porcentaje de jugadas exitosas
         (qb_stats["Rate"] * 0.1) +   # Rating del QB
         (qb_stats["4QC"] * 0.15) +   # Drives de remontada en el 4° cuarto

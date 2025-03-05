@@ -4,8 +4,9 @@ import pandas as pd
 import os
 from app.plots import calculate_custom_epa
 from app.sidebar import render_sidebar
-from app.metrics import render_metrics
+from app.season_metrics import render_season_metrics
 from app.plots import render_plots
+from app.carrer_metrics import render_carrer_metrics
 
 # Cargar los datasets
 qb_df = pd.read_csv(os.path.join("data", "processed", "qb_stats.csv"))
@@ -34,14 +35,14 @@ if not os.path.exists(image_path):
     image_path = os.path.join("data", "images", "Not_found_image.jpg")
 
 # Renderizar la barra lateral y filtrar por temporada
-selected_season, qb_data = render_sidebar(qb_data, selected_qb, qb_id, image_path)
-
-# Mostrar métricas básicas en la parte principal
-render_metrics(qb_data)
+selected_season, qb_data = render_sidebar(qb_df, qb_data, selected_qb, qb_id, image_path)
 
 # Si se seleccionó una temporada específica, renderizamos las gráficas
 if selected_season != "Toda la carrera":
+    # Mostrar métricas básicas en la parte principal
+    render_season_metrics(qb_data,qb_df, selected_season, selected_qb)
+    # Mostrar gráficos del QB
     render_plots(qb_data, selected_qb, selected_season)
-    st.text(calculate_custom_epa(qb_data, selected_qb, selected_season))
+    #st.text(calculate_custom_epa(qb_data, selected_qb, selected_season))
 else:
-    pass
+    render_carrer_metrics(qb_data)

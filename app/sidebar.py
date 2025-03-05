@@ -2,7 +2,7 @@
 import streamlit as st
 from scripts.Filters import extract_awards, teams
 
-def render_sidebar(qb_data, selected_qb, qb_id, image_path):
+def render_sidebar(qb_df, qb_data, selected_qb, qb_id, image_path):
     with st.sidebar:
         col1, col2 = st.columns(2)
         with col1:
@@ -32,10 +32,11 @@ def render_sidebar(qb_data, selected_qb, qb_id, image_path):
         
         # Filtrado según la temporada seleccionada
         if selected_season == "Toda la carrera":
-            # Agrupar datos y calcular promedios reales para algunas columnas
             qb_data = qb_data.groupby("Player").sum(numeric_only=True).reset_index()
-            qb_data["Rate"] = qb_data["Rate"].mean()
-            qb_data["Cmp%"] = qb_data["Cmp%"].mean()
+            qb_data = qb_data.groupby("Player").sum(numeric_only=True).reset_index()
+            qb_data["Rate"] = qb_df[qb_df["Player"] == selected_qb]["Rate"].mean()  # Calcular el promedio real
+            qb_data["Cmp%"] = qb_df[qb_df["Player"] == selected_qb]["Cmp%"].mean()
+            print(qb_data)
         else:
             qb_data = qb_data[qb_data["Season"] == selected_season]
             
