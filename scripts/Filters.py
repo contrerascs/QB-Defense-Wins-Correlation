@@ -69,3 +69,36 @@ def teams(player_name, qb_data):
     qb_teams_full = [team_names[abbr] for abbr in qb_teams_abbr if abbr in team_names]
 
     return qb_teams_full
+
+def team_for_season(player_name, qb_data, season):
+    # Diccionario de equipos
+    team_names = {
+        'ARI': 'Arizona Cardinals', 'ATL': 'Atlanta Falcons', 'BAL': 'Baltimore Ravens',
+        'BUF': 'Buffalo Bills', 'CAR': 'Carolina Panthers', 'CHI': 'Chicago Bears',
+        'CIN': 'Cincinnati Bengals', 'CLE': 'Cleveland Browns', 'DAL': 'Dallas Cowboys',
+        'DEN': 'Denver Broncos', 'DET': 'Detroit Lions', 'GB': 'Green Bay Packers',
+        'HOU': 'Houston Texans', 'IND': 'Indianapolis Colts', 'JAX': 'Jacksonville Jaguars',
+        'KAN': 'Kansas City Chiefs', 'LVR': 'Las Vegas Raiders', 'LAC': 'Los Angeles Chargers',
+        'LAR': 'Los Angeles Rams', 'MIA': 'Miami Dolphins', 'MIN': 'Minnesota Vikings',
+        'NWE': 'New England Patriots', 'NOR': 'New Orleans Saints', 'NYG': 'New York Giants',
+        'NYJ': 'New York Jets', 'PHI': 'Philadelphia Eagles', 'PIT': 'Pittsburgh Steelers',
+        'SFO': 'San Francisco 49ers', 'SEA': 'Seattle Seahawks', 'TAM': 'Tampa Bay Buccaneers',
+        'TEN': 'Tennessee Titans', 'WAS': 'Washington Commanders' , 'STL': 'St. Louis Rams', 'RAI':'Los Angeles Raiders',
+        'RAM': 'Los Angeles Rams', 'SDG': 'San Diego Chargers'
+    }
+
+    # Filtrar dataset para obtener las temporadas del QB seleccionado y para la temporada específica
+    qb_season_data = qb_data[(qb_data["Player"] == player_name) & (qb_data["Season"] == season)]
+    #print(qb_season_data)
+
+    # Verificar si existe información para esa temporada
+    if qb_season_data.empty:
+        return f"No se encontraron datos para {player_name} en la temporada {season}"
+
+    # Obtener el equipo correspondiente para esa temporada
+    team_abbr = qb_season_data["Team"].values[0]
+
+    # Convertir abreviación a nombre completo del equipo
+    team_full_name = team_names.get(team_abbr, 'Equipo desconocido')
+
+    return team_full_name

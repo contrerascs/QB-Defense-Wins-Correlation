@@ -174,30 +174,3 @@ def render_plots(qb_data, selected_qb, selected_season):
         st.plotly_chart(fig_pass_performance, use_container_width=True)
         st.plotly_chart(fig_comparison, use_container_width=True)
     
-def calculate_custom_epa(qb_data, selected_qb, selected_season):
-    # Asegurar que la columna Season es string y ordenar
-    if "Season" in qb_data.columns:
-        qb_data["Season"] = qb_data["Season"].astype(str)
-        qb_data = qb_data.sort_values("Season")
-    
-    # Rellenar NaN para evitar errores en la gráfica
-    qb_data["Yds"] = qb_data["Yds"].fillna(0)
-    qb_data["TD"] = qb_data["TD"].fillna(0)
-    qb_data["Int"] = qb_data["Int"].fillna(0)
-    
-    qb_stats = qb_data.iloc[0]  # Como es una temporada específica, se espera un solo registro
-    
-    # Factores ponderados para calcular EPA/play personalizado
-    epa = (
-        (qb_stats["ANY/A"] * 0.4) +  # Yardas netas ajustadas por intento
-        (qb_stats["NY/A"] * 0.3) -   # Yardas netas por intento
-        ((100 - qb_stats['Cmp%']) * 0.2) +
-        (qb_stats["TD%"] * 0.2) -    # Porcentaje de touchdowns
-        (qb_stats["Int%"] * 0.4) +   # Penalización por intercepciones
-        (qb_stats["Succ%"] * 0.2) +  # Porcentaje de jugadas exitosas
-        (qb_stats["Rate"] * 0.1) +   # Rating del QB
-        (qb_stats["4QC"] * 0.15) +   # Drives de remontada en el 4° cuarto
-        (qb_stats["GWD"] * 0.15)     # Drives ganadores
-    )
-
-    return round((epa/100), 2)  # Redondear a dos decimales

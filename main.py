@@ -2,7 +2,6 @@
 import streamlit as st
 import pandas as pd
 import os
-from app.plots import calculate_custom_epa
 from app.sidebar import render_sidebar
 from app.season_metrics import render_season_metrics
 from app.plots import render_plots
@@ -40,9 +39,8 @@ selected_season, qb_data = render_sidebar(qb_df, qb_data, selected_qb, qb_id, im
 # Si se seleccionó una temporada específica, renderizamos las gráficas
 if selected_season != "Toda la carrera":
     # Mostrar métricas básicas en la parte principal
-    render_season_metrics(qb_data,qb_df, selected_season, selected_qb)
+    render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_df)
     # Mostrar gráficos del QB
     render_plots(qb_data, selected_qb, selected_season)
-    #st.text(calculate_custom_epa(qb_data, selected_qb, selected_season))
 else:
     render_carrer_metrics(qb_data)
