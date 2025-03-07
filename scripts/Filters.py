@@ -61,6 +61,9 @@ def teams(player_name, qb_data):
 
     # Filtrar dataset para obtener las temporadas del QB seleccionado
     qb_seasons = qb_data[qb_data["Player-additional"] == player_name]
+    seasons = qb_seasons['Season'].min()
+    if seasons <= 1996:
+        team_names['HOU'] = 'Houston Oilers'
 
     # Obtener los equipos únicos en los que ha jugado el QB
     qb_teams_abbr = qb_seasons["Team"].unique()
@@ -86,6 +89,9 @@ def team_for_season(player_name, qb_data, season):
         'TEN': 'Tennessee Titans', 'WAS': 'Washington Commanders' , 'STL': 'St. Louis Rams', 'RAI':'Los Angeles Raiders',
         'RAM': 'Los Angeles Rams', 'SDG': 'San Diego Chargers'
     }
+
+    if season <= 1996:
+        team_names['HOU'] = 'Houston Oilers'
 
     # Filtrar dataset para obtener las temporadas del QB seleccionado y para la temporada específica
     qb_season_data = qb_data[(qb_data["Player"] == player_name) & (qb_data["Season"] == season)]

@@ -20,6 +20,8 @@ st.set_page_config(
     initial_sidebar_state='expanded'
 )
 
+st.title('¿Las victorias son estadisticas de QB?')
+
 # Seleccionar QB
 qb_list = qb_df["Player"].unique()
 selected_qb = st.selectbox("Selecciona un QB", qb_list)
@@ -41,6 +43,7 @@ if selected_season != "Toda la carrera":
     # Mostrar métricas básicas en la parte principal
     render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_df)
     # Mostrar gráficos del QB
-    render_plots(qb_data, selected_qb, selected_season)
+    season_df = qb_df[qb_df["Season"] == selected_season]
+    render_plots(qb_data, selected_qb, selected_season,season_df)
 else:
     render_carrer_metrics(qb_data)

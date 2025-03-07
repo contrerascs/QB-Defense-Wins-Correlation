@@ -59,7 +59,6 @@ def calculate_qb_rank(df, player):
 def calculate_defense_rank(df, season, player, qb_data):
     # Obtener el nombre completo del equipo
     team_full_name = team_for_season(player, qb_data, season)
-    print(team_full_name)
     if not team_full_name:
         return None  # Si no encuentra el equipo, devolver None
 
@@ -103,7 +102,6 @@ def calculate_defense_rank(df, season, player, qb_data):
     rank = df.loc[df["Team"] == team_full_name, "Defense_Rank"].values
     return int(rank[0]) if len(rank) > 0 else None
 
-
 def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_df):
     if selected_season == "Toda la carrera":
         season_df = qb_df.groupby("Player").sum(numeric_only=True).reset_index()
@@ -111,27 +109,14 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_
         season_df = qb_df[qb_df["Season"] == selected_season]
         season_defense = defense_df[defense_df["Season"] == selected_season]
         qb_defense = season_defense[season_defense['Team'] == team_for_season(selected_qb,qb_data,selected_season)]
-        print(qb_defense.head())
 
-    st.subheader(f'Estadisticas de {selected_qb} en {selected_season}')
+    st.subheader(f'Estadisticas de {selected_qb} en {selected_season} con {team_for_season(selected_qb,qb_data,selected_season)}')
 
     c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
-
-    with c4:
-        ypg = int(qb_data["Y/G"].sum())
-        rank = calculate_position(season_df, selected_qb, "Y/G")
-        print(rank)
-        if rank > 20:
-            st.metric("Y/G", f"{ypg:,}", f"{(int(rank))}º","inverse",border=True)
-        elif rank > 10:
-            st.metric("Y/G", f"{ypg:,}", f"{int(rank)}º", "off",border=True)
-        else:
-            st.metric("Y/G", f"{ypg:,}", f"{int(rank)}º",border=True)
 
     with c1:
         atts = int(qb_data["Att"].sum())
         rank = calculate_position(season_df, selected_qb, "Att")
-        print(rank)
         if rank > 20:
             st.metric("Atts", f"{atts:,}", f"{(int(rank))}º","inverse",border=True)
         elif rank > 10:
@@ -143,7 +128,7 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_
         cmp_value = float(qb_data['Cmp%'].iloc[0])
         rank = calculate_position(season_df, selected_qb, "Cmp%")
         if rank > 20:
-            st.metric('Cmp%', f"{round(cmp_value, 1)}%", f"{(-int(rank))}º",'inverse',border=True)
+            st.metric('Cmp%', f"{round(cmp_value, 1)}%", f"{(int(rank))}º",'inverse',border=True)
         elif rank > 10:
             st.metric('Cmp%', f"{round(cmp_value, 1)}%", f"{(int(rank))}º","off",border=True)
         else:
@@ -159,13 +144,23 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_
         else:
             st.metric("Total Yds", f"{yards:,}", f"{int(rank)}º",border=True)
 
+    with c4:
+        ypg = float(qb_data["Y/G"].sum())
+        rank = calculate_position(season_df, selected_qb, "Y/G")
+        if rank > 20:
+            st.metric("Yds por juego", f"{ypg:,}", f"{(int(rank))}º","inverse",border=True)
+        elif rank > 10:
+            st.metric("Yds por juego", f"{ypg:,}", f"{int(rank)}º", "off",border=True)
+        else:
+            st.metric("Yds por juego", f"{ypg:,}", f"{int(rank)}º",border=True)
+
     with c5:
         tds = int(qb_data["TD"].sum())
         rank = calculate_position(season_df, selected_qb, "TD")
         if rank > 20:
-            st.metric("Touchdowns", tds, f"{(-int(rank))}º",'inverse',border=True)
+            st.metric("Touchdowns", tds, f"{(int(rank))}º",'inverse',border=True)
         elif rank > 10:
-            st.metric("Touchdowns", tds, f"{(-int(rank))}º",'off',border=True)
+            st.metric("Touchdowns", tds, f"{(int(rank))}º",'off',border=True)
         else:
             st.metric("Touchdowns", tds, f"{int(rank)}º",border=True)
 
@@ -173,26 +168,41 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_
         ints = int(qb_data["Int"].sum())
         rank = calculate_position(season_df, selected_qb, "Int")
         if rank > 20:
-            st.metric("Ints", ints, f"{(-int(rank))}º",'inverse',border=True)
+            st.metric("Ints", ints, f"{(int(rank))}º",border=True)
         elif rank > 10:
-            st.metric("Ints", ints, f"{(-int(rank))}º",'off',border=True)
+            st.metric("Ints", ints, f"{(int(rank))}º",'off',border=True)
         else:    
-            st.metric("Ints", ints, f"{int(rank)}º",border=True)
+            st.metric("Ints", ints, f"{int(rank)}º",'inverse',border=True)
 
     with c7:
         rating = float(qb_data['Rate'].iloc[0])
         rank = calculate_position(season_df, selected_qb, "Rate")
         if rank > 20:
-            st.metric('Rating', round(rating, 2), f"{(-int(rank))}º",'inverse',border=True)
+            st.metric('Rating', round(rating, 2), f"{(int(rank))}º",'inverse',border=True)
         elif rank > 10:
-            st.metric('Rating', round(rating, 2), f"{(-int(rank))}º",'off',border=True)
+            st.metric('Rating', round(rating, 2), f"{(int(rank))}º",'off',border=True)
         else:
             st.metric('Rating', round(rating, 2), f"{int(rank)}º",border=True)
 
-    #with c8:
-    #    qb_rank = calculate_qb_rank(season_df, selected_qb)
-    #    st.metric("Rk de QB", f"{qb_rank}º",border=True)
-        #print(calculate_defense_rank(defense_df,selected_season,selected_qb,qb_data))
+    st.subheader(f'Ranking de {selected_qb} VS Ranking de su defensa en {selected_season}')
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        qb_rank = calculate_qb_rank(season_df, selected_qb)
+        st.metric(f"Ranking de {selected_qb} en {selected_season}", f"{qb_rank}º",border=True)
+        
+    with c2:
+        defense_rank = calculate_defense_rank(defense_df,selected_season,selected_qb,qb_data)
+        st.metric(f"Ranking de la defensa de {team_for_season(selected_qb,qb_data,selected_season)}", f"{defense_rank}º", border=True)
+    
+    with c3:
+        record = (qb_data['QBrec'].iloc[0])
+
+        if record[-1:] == '0':
+            nuevo_record = record[:-2]
+
+        st.metric(f"Record de {team_for_season(selected_qb,qb_data,selected_season)} con {selected_qb}", f"{nuevo_record}",border=True)
 
     st.subheader(f'Estadisticas defensivas de {team_for_season(selected_qb,qb_data,selected_season)} en {selected_season}')
     
@@ -223,11 +233,11 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_
         cmp_value = float(qb_defense['Y/P'].iloc[0])
         defense_rank = calculate_defense_position(season_defense,selected_qb,qb_data,selected_season,'Y/P')
         if defense_rank > 20:
-            st.metric('Yardas por jugada', f"{cmp_value}", f"{(-int(defense_rank))}º", border=True)
+            st.metric('Yds por jugada', f"{cmp_value}", f"{(-int(defense_rank))}º", border=True)
         elif defense_rank > 10:
-            st.metric('Yardas por jugada', f"{cmp_value}", f"{(-int(defense_rank))}º",'off', border=True)
+            st.metric('Yds por jugada', f"{cmp_value}", f"{(-int(defense_rank))}º",'off', border=True)
         else:
-            st.metric('Yardas por jugada', f"{cmp_value}", f"{(-int(defense_rank))}º",'inverse', border=True)
+            st.metric('Yds por jugada', f"{cmp_value}", f"{(-int(defense_rank))}º",'inverse', border=True)
 
     with c4:
         ppa = int(qb_defense["PA"].sum())
@@ -268,7 +278,3 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_
             st.metric("Robos de balón", to, f"{(int(33-defense_rank))}º",'off', border=True)
         else:
             st.metric("Robos de balón", to, f"{(int(33-defense_rank))}º",'inverse', border=True)
-
-    #with c8:
-    #    defense_rank = calculate_defense_rank(defense_df,selected_season,selected_qb,qb_data)
-    #    st.metric("Rk de Defensa", f"{defense_rank}º")
