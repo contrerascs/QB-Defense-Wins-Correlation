@@ -8,7 +8,6 @@ import numpy as np
 
 def render_plots(qb_data, selected_qb, selected_season,season_df):
     # Asegurar que la columna Season es string y ordenar
-    print(qb_data)
     if "Season" in qb_data.columns:
         qb_data["Season"] = qb_data["Season"].astype(str)
         qb_data = qb_data.sort_values("Season")
@@ -30,7 +29,7 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
     fig_pie = go.Figure(go.Pie(
         labels=labels,
         values=values,
-        hole=0.4,
+        hole=0.5,
         marker=dict(colors=colors),
         textinfo="percent"
     ))
@@ -39,30 +38,17 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
         template="plotly_dark"
     )
 
-    # Diccionario de descripción de las métricas
-    stat_descriptions = {
-        "Y/A": "Yardas por intento",
-        "AY/A": "Ajuste de yardas por intento",
-        "Y/C": "Yardas por pase completo",
-        "Y/G": "Yardas por juego"
+    # Estadísticas clave a normalizar
+    pass_stats_to_normalize = ["AY/A","Y/A", "Cmp%", "Y/G","Att"]
+    
+    metric_names = {
+        "AY/A": "Adj-Yds/att",
+        "Y/A": "Yds/att",
+        "Y/G": "Yds/Game",
+        "Att": "Atts"
     }
 
-    # Crear anotaciones para la leyenda al costado del gráfico
-    annotations = [
-        dict(
-            x=1.05, y=1 - (i * 0.1),  # Posición al costado derecho
-            xref="paper", yref="paper",
-            text=f"<b>{stat}</b>: {desc}",
-            showarrow=False,
-            font=dict(size=12),
-            align="left"
-        ) for i, (stat, desc) in enumerate(stat_descriptions.items())
-    ]
-
-    # Estadísticas clave a normalizar
-    pass_stats_to_normalize = ["Y/A", "AY/A", "Y/C", "Y/G","NY/A","ANY/A"]
-    
-    # Diccionario para almacenar valores normalizados
+    # Diccionario para almacenar valores normalizados con nombres descriptivos
     normalized_stats = {}
 
     for stat in pass_stats_to_normalize:
@@ -71,9 +57,9 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
             max_val = season_df[stat].max()
             
             if max_val - min_val != 0:  # Evitar divisiones por cero
-                normalized_stats[stat] = (qb_data[stat].values[0] - min_val) / (max_val - min_val) * 100
+                normalized_stats[metric_names.get(stat, stat)] = (qb_data[stat].values[0] - min_val) / (max_val - min_val) * 100
             else:
-                normalized_stats[stat] = 50  # Valor neutral si no hay variación
+                normalized_stats[metric_names.get(stat, stat)] = 50  # Valor neutral si no hay variación
 
     # Convertir a listas para la gráfica
     categories = list(normalized_stats.keys())
@@ -106,7 +92,7 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
             )
         ),
         showlegend=True,
-        title=f'Comparación Normalizada - {selected_qb} ({selected_season})',
+        title=f'Puntuación en Precisión y Volumen de pase - {selected_qb} ({selected_season})',
         template='plotly_dark',
     )
 
@@ -116,7 +102,9 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
     value=qb_stats["Sk%"],  
     number={"suffix": "%"},  
     gauge={  
-        "axis": {"range": [0, 15]},  # Rango de referencia para Sk%  
+        "axis": {"range": [0, 15],
+                 "tickvals": [0, 3, 6, 9, 12, 15],
+                 },  # Rango de referencia para Sk%  
         "bar": {"color": "white"},  # Color de la barra que representa el valor  
         "steps": [  
             {"range": [0, 3], "color": "#1CB698"},  # Rango de 0 a 5

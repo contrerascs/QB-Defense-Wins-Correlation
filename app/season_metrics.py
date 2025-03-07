@@ -57,13 +57,12 @@ def calculate_qb_rank(df, player):
     return int(rank[0]) if len(rank) > 0 else None
 
 def calculate_defense_rank(df, season, player, qb_data):
+    df = df.copy()
+
     # Obtener el nombre completo del equipo
     team_full_name = team_for_season(player, qb_data, season)
     if not team_full_name:
         return None  # Si no encuentra el equipo, devolver None
-
-    # Filtrar por la temporada específica
-    df = df[df["Season"] == season].copy()
 
     # Normalización de métricas
     df["PA_norm"] = df["PA"] / df["PA"].max()
@@ -102,12 +101,11 @@ def calculate_defense_rank(df, season, player, qb_data):
     rank = df.loc[df["Team"] == team_full_name, "Defense_Rank"].values
     return int(rank[0]) if len(rank) > 0 else None
 
-def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_df):
+def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, season_defense):
     if selected_season == "Toda la carrera":
         season_df = qb_df.groupby("Player").sum(numeric_only=True).reset_index()
     else:
         season_df = qb_df[qb_df["Season"] == selected_season]
-        season_defense = defense_df[defense_df["Season"] == selected_season]
         qb_defense = season_defense[season_defense['Team'] == team_for_season(selected_qb,qb_data,selected_season)]
 
     st.subheader(f'Estadisticas de {selected_qb} en {selected_season} con {team_for_season(selected_qb,qb_data,selected_season)}')
@@ -193,7 +191,7 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, defense_
         st.metric(f"Ranking de {selected_qb} en {selected_season}", f"{qb_rank}º",border=True)
         
     with c2:
-        defense_rank = calculate_defense_rank(defense_df,selected_season,selected_qb,qb_data)
+        defense_rank = calculate_defense_rank(season_defense,selected_season,selected_qb,qb_data)
         st.metric(f"Ranking de la defensa de {team_for_season(selected_qb,qb_data,selected_season)}", f"{defense_rank}º", border=True)
     
     with c3:
