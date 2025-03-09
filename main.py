@@ -37,7 +37,6 @@ if selected_season != "Toda la carrera":
     render_season_metrics(qb_data_in_season, qb_df, selected_season, selected_qb, season_defense)
     # Mostrar gráficos del QB
     season_df = qb_df[qb_df["Season"] == selected_season]
-    render_plots(qb_data_in_season, selected_qb, selected_season,season_df)
+    render_plots(qb_data_in_season, selected_qb, selected_season,season_df,season_defense)
 else:
     render_carrer_metrics(qb_data)
-    print('Hola')

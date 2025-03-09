@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 from helpers.data_filter import team_for_season
+from helpers.data_utils import normalize_stats
 
 def calculate_position(df, player, metric):
     df = df[df["Att"] > 110]
@@ -24,16 +25,12 @@ def calculate_defense_position(df, team_name, metric):
 def calculate_qb_rank(df, player):
     # Excluir jugadores con pocos intentos para evitar sesgos
     df = df[df["Att"] > 110].copy()
+    stats = ['Yds', 'TD', 'TD%', 'Rate', 'Y/A', 'Int', 'Sk%']
+    names_norm = ['Yds_norm', 'TD_norm', 'TD%_norm', 'Rate_norm', 'Y/A_norm', 'Int_norm', 'Sk%_norm']
 
-    # Normalización de métricas
-    df["Yds_norm"] = df["Yds"] / df["Yds"].max()
-    df["TD_norm"] = df["TD"] / df["TD"].max()
-    df["TD%_norm"] = df["TD%"] / df["TD%"].max()
-    df["Rate_norm"] = df["Rate"] / df["Rate"].max()
-    df["Y/A_norm"] = df["Y/A"] / df["Y/A"].max()
-
-    df["Int_norm"] = df["Int"] / df["Int"].max()
-    df["Sk%_norm"] = df["Sk%"] / df["Sk%"].max()
+    # Normalizar las estadísticas
+    for stat, name in zip(stats, names_norm):
+        df[name] = normalize_stats(df, stat)
 
     # Puntaje final con ponderaciones
     df["QB_Score"] = (
@@ -62,19 +59,13 @@ def calculate_defense_rank(df, season, player, qb_data):
     if not team_full_name:
         return None  # Si no encuentra el equipo, devolver None
 
-    # Normalización de métricas
-    df["PA_norm"] = df["PA"] / df["PA"].max()
-    df["Total Yds_norm"] = df["Total Yds"] / df["Total Yds"].max()
-    df["Y/P_norm"] = df["Y/P"] / df["Y/P"].max()
-    df["Passing Yds_norm"] = df["Passing Yds"] / df["Passing Yds"].max()
-    df["Rushing Yds_norm"] = df["Rushing Yds"] / df["Rushing Yds"].max()
-    df["Sc%_norm"] = df["Sc%"] / df["Sc%"].max()
-    df["Exp_norm"] = df["EXP"] / df["EXP"].max()
+    stats = ['PA', 'Total Yds', 'Y/P', 'Passing Yds', 'Rushing Yds', 'Sc%', 'EXP','TO','Int','FL','TO%']
+    names_norm = ['PA_norm', 'Total Yds_norm', 'Y/P_norm', 'Passing Yds_norm', 'Rushing Yds_norm', 'Sc%_norm',
+                  'Exp_norm','TO_norm','Int_norm','FL_norm','TO%_norm']
 
-    df["TO_norm"] = df["TO"] / df["TO"].max()
-    df["Int_norm"] = df["Int"] / df["Int"].max()
-    df["FL_norm"] = df["FL"] / df["FL"].max()
-    df["TO%_norm"] = df["TO%"] / df["TO%"].max()
+    # Normalizar las estadísticas
+    for stat, name in zip(stats, names_norm):
+        df[name] = normalize_stats(df, stat)
 
     # Ponderación para calcular la puntuación final de la defensa
     df["Defense_Score"] = (
@@ -94,12 +85,15 @@ def calculate_defense_rank(df, season, player, qb_data):
     # Ordenar y asignar ranking
     df = df.sort_values(by="Defense_Score", ascending=False).reset_index(drop=True)
     df["Defense_Rank"] = df.index + 1
-
+    
+    columnas_a_imprimir = [df.columns[0]] + list(df.columns[-8:])
+    df_seleccionado = df[columnas_a_imprimir]
+    
     # Devolver ranking del equipo en esa temporada
     rank = df.loc[df["Team"] == team_full_name, "Defense_Rank"].values
     return int(rank[0]) if len(rank) > 0 else None
 
-def rank_in_stat(qb_data,all_qb_in_season, selected_qb, stat):
+def qb_rank_in_stat(qb_data,all_qb_in_season, selected_qb, stat):
     if stat == 'Cmp%' or stat == 'Rate':
         stat_value = float(qb_data[stat].iloc[0])
     else:
@@ -179,7 +173,7 @@ def render_season_metrics(qb_data, qb_df, selected_season, selected_qb, season_d
 
     for col, stat in zip(columns, stats):
         with col:
-            rank_in_stat(qb_data, all_qb_in_season, selected_qb, stat)
+            qb_rank_in_stat(qb_data, all_qb_in_season, selected_qb, stat)
 
     st.subheader(f'Ranking de {selected_qb} VS Ranking de su defensa en {selected_season}')
 

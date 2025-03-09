@@ -65,7 +65,5 @@ def render_sidebar(qb_df, qb_data, selected_qb, qb_id):
 
         # Filtrar datos según la temporada seleccionada
         qb_data = filter_qb_data(qb_data, selected_season, qb_df, selected_qb)
-
-        print(qb_data)
         
     return selected_season, qb_data

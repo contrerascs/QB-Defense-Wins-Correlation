@@ -5,11 +5,13 @@ import plotly.graph_objects as go
 import plotly.express as px
 import matplotlib.pyplot as plt
 import numpy as np
+from helpers.data_utils import normalize_stats_plots,calculate_qb_metrics,normalize_stats_defense_plots
+from helpers.data_filter import team_for_season
 
-def render_plots(qb_data, selected_qb, selected_season,season_df):
+def render_plots(qb_data, selected_qb, selected_season,season_df,season_defense):
     # Asegurar que la columna Season es string y ordenar
     if "Season" in qb_data.columns:
-        qb_data["Season"] = qb_data["Season"].astype(str)
+        qb_data["Season_str"] = qb_data["Season"].astype(str)  # Nueva columna
         qb_data = qb_data.sort_values("Season")
     
     # Rellenar NaN para evitar errores en la gráfica
@@ -38,32 +40,12 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
         template="plotly_dark"
     )
 
-    # Estadísticas clave a normalizar
-    pass_stats_to_normalize = ["AY/A","Y/A", "Cmp%", "Y/G","Att"]
-    
-    metric_names = {
-        "AY/A": "Adj-Yds/att",
-        "Y/A": "Yds/att",
-        "Y/G": "Yds/Game",
-        "Att": "Atts"
-    }
-
-    # Diccionario para almacenar valores normalizados con nombres descriptivos
-    normalized_stats = {}
-
-    for stat in pass_stats_to_normalize:
-        if stat in season_df.columns:
-            min_val = season_df[stat].min()
-            max_val = season_df[stat].max()
-            
-            if max_val - min_val != 0:  # Evitar divisiones por cero
-                normalized_stats[metric_names.get(stat, stat)] = (qb_data[stat].values[0] - min_val) / (max_val - min_val) * 100
-            else:
-                normalized_stats[metric_names.get(stat, stat)] = 50  # Valor neutral si no hay variación
+    # Obtener métricas normalizadas del QB seleccionado
+    qb_metrics = calculate_qb_metrics(season_df, selected_qb)
 
     # Convertir a listas para la gráfica
-    categories = list(normalized_stats.keys())
-    values = list(normalized_stats.values())
+    categories = list(qb_metrics.keys())
+    values = list(qb_metrics.values())
 
     # Cerrar el gráfico conectando el último punto con el primero
     values.append(values[0])
@@ -80,20 +62,10 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
         line=dict(color='#1CB698'),
         fillcolor='rgba(28, 182, 152, 0.3)'
     ))
-
-    # Estilizar el gráfico
     fig_radar.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 100],  # Normalizado de 0 a 100
-                tickmode='array',
-                tickvals=[0, 25, 50, 75, 100]
-            )
-        ),
-        showlegend=True,
-        title=f'Puntuación en Precisión y Volumen de pase - {selected_qb} ({selected_season})',
-        template='plotly_dark',
+        polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+        title=f"Fortalezas de {selected_qb} en {selected_season}",
+        template='plotly_dark'
     )
 
     ## 🔹 Gauge Chart: Porcentaje de Capturas (Sk%)
@@ -126,41 +98,101 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
         width=400,  # Ajusta el ancho en píxeles
         height=450
         )
+    
+    # Estadísticas clave a normalizar 
+    pass_stats_to_normalize = ["Yds","TD", "Int","Att","1D"]
+    defense_stats_to_normalize = ['Passing Yds','Passing TD','Int','Passing Att','Passing 1stD']
 
-    # Estadísticas clave a normalizar
-    stats_to_normalize = ['Cmp%', 'TD%', 'Int%', 'Rate', 'Yds']
-    
-    # Diccionario para almacenar valores normalizados
+    metric_names = {
+        "Yds": "Air Yds",
+        "TD": "TDs",
+        "Int": "Entregas",
+        "Att": "Atts",
+        "1D": "Passing 1stD"
+    }
+    metric_names_defense = {
+        "Passing Yds": "Air Yds",
+        "Passing TD": "TDs",
+        "Int": "Entregas",
+        "Passing Att": "Atts",
+        "Passing 1stD": "Passing 1stD"
+    }
+
+    team = team_for_season(selected_qb, qb_data, selected_season)
+    # Filtrar las estadísticas de la defensa del equipo
+    defense_stats = season_defense[season_defense["Team"] == team]
+    # Diccionario para almacenar valores normalizados de la defensa
+    normalized_defense_stats = {}
+
+    # Normalizar las estadísticas de la defensa (invertir=True)
+    for stat in defense_stats_to_normalize:
+        if stat in season_defense.columns:
+            normalized_value = normalize_stats_defense_plots(season_defense, stat, team, invert=True)  # Invertir la normalización
+            if normalized_value is not None:
+                normalized_defense_stats[metric_names_defense.get(stat, stat)] = normalized_value
+
+    # Diccionario para almacenar valores normalizados con nombres descriptivos
     normalized_stats = {}
-    
-    for stat in stats_to_normalize:
+
+    # Normalizar las estadísticas usando la función
+    for stat in pass_stats_to_normalize:
         if stat in season_df.columns:
-            min_val = season_df[stat].min()
-            max_val = season_df[stat].max()
-            
-            if max_val - min_val != 0:  # Evitar divisiones por cero
-                normalized_stats[stat] = (qb_data[stat].values[0] - min_val) / (max_val - min_val) * 100
-            else:
-                normalized_stats[stat] = 50  # Valor neutral si no hay variación
-    
-    # Crear el gráfico de barras con Plotly
-    fig = go.Figure(data=[go.Bar(
-        x=list(normalized_stats.keys()),
-        y=list(normalized_stats.values()),
-        marker=dict(color='#1CB698', opacity=0.9)
-    )])
-    
+            # Normalizar el valor del jugador
+            normalized_value = normalize_stats_plots(season_df, stat, selected_qb)
+            if normalized_value is not None:
+                normalized_stats[metric_names.get(stat, stat)] = normalized_value
+
+    # Convertir a listas para la gráfica
+    categories = list(normalized_stats.keys())
+    values = list(normalized_stats.values())
+
+    # Convertir a listas para la gráfica
+    defense_categories = list(normalized_defense_stats.keys())
+    defense_values = list(normalized_defense_stats.values())
+
+    # Cerrar el gráfico conectando el último punto con el primero
+    defense_values.append(defense_values[0])
+    defense_categories.append(defense_categories[0])
+
+    # Cerrar el gráfico conectando el último punto con el primero
+    values.append(values[0])
+    categories.append(categories[0])
+
+    # Crear el gráfico de radar con Plotly
+    fig_vs = go.Figure()
+
+    fig_vs.add_trace(go.Scatterpolar(
+        r=values,
+        theta=categories,
+        fill='toself',
+        name=f'{selected_qb} ({selected_season})',
+        line=dict(color='#1CB698'),
+        fillcolor='rgba(28, 182, 152, 0.3)'
+    ))
+
+    # Gráfica de la defensa
+    fig_vs.add_trace(go.Scatterpolar(
+        r=defense_values,
+        theta=defense_categories,
+        fill='toself',
+        name=f'Defensa',
+        line=dict(color='#FF6B6B'),
+        fillcolor='rgba(255, 107, 107, 0.3)'
+    ))
+
     # Estilizar el gráfico
-    fig.update_layout(
-        title=f'Comparación Normalizada - {selected_qb} ({selected_season})',
-        xaxis_title='Estadísticas',
-        yaxis_title='Valor Normalizado (0-100)',
-        yaxis=dict(range=[0, 100]),
-        #plot_bgcolor='white',
-        xaxis=dict(tickangle=45),
-        template='plotly_white',
-        width=400,  # Ajusta el ancho en píxeles
-        height=450
+    fig_vs.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],  # Normalizado de 0 a 100
+                tickmode='array',
+                tickvals=[0, 25, 50, 75, 100]
+            )
+        ),
+        showlegend=True,
+        title=f'Puntuación de {selected_qb} y {team} en ({selected_season})',
+        template='plotly_dark',
     )
 
     # Mostrar las gráficas en Streamlit
@@ -171,5 +203,5 @@ def render_plots(qb_data, selected_qb, selected_season,season_df):
 
     with c2:
         st.plotly_chart(fig_radar, use_container_width=True)
-        st.plotly_chart(fig, use_container_width=False)
+        st.plotly_chart(fig_vs, use_container_width=True)
     
