@@ -1,7 +1,9 @@
 # app/carrer_metrics.py
 import streamlit as st
 
-def render_carrer_metrics(qb_data):
+def render_carrer_metrics(qb_data,selected_qb ):
+    st.subheader(f'Estadisticas de {selected_qb} en toda su carrera')
+
     c1, c2, c3, c4, c5, c6 = st.columns(6)
     
     with c1:

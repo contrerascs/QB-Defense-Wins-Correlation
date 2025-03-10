@@ -41,5 +41,5 @@ if selected_season != "Toda la carrera":
     season_df = qb_df[qb_df["Season"] == selected_season]
     render_plots(qb_data_in_season, selected_qb, selected_season,season_df,season_defense)
 else:
-    render_carrer_metrics(qb_data)
+    render_carrer_metrics(qb_data,selected_qb)
     render_carrer_plots(qb_data,selected_qb,defense_df,qb_df)
