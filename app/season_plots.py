@@ -1,17 +1,13 @@
-# app/plots.py
+# app/season_plots.py
 import streamlit as st
-import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
-import matplotlib.pyplot as plt
-import numpy as np
 from helpers.data_utils import normalize_stats_plots,calculate_qb_metrics,normalize_stats_defense_plots
 from helpers.data_filter import team_for_season
 
 def render_plots(qb_data, selected_qb, selected_season,season_df,season_defense):
     # Asegurar que la columna Season es string y ordenar
     if "Season" in qb_data.columns:
-        qb_data["Season_str"] = qb_data["Season"].astype(str)  # Nueva columna
+        qb_data.loc[:, "Season_str"] = qb_data["Season"].astype(str)  # Nueva columna
         qb_data = qb_data.sort_values("Season")
     
     # Rellenar NaN para evitar errores en la gráfica

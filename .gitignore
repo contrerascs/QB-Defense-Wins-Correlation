@@ -1,2 +1,4 @@
 /data_txt
 /data/raw
+/app/__pycache__/
+/helpers/__pycache__/

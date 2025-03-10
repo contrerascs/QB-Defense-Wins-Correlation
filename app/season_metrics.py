@@ -86,9 +86,6 @@ def calculate_defense_rank(df, season, player, qb_data):
     df = df.sort_values(by="Defense_Score", ascending=False).reset_index(drop=True)
     df["Defense_Rank"] = df.index + 1
     
-    columnas_a_imprimir = [df.columns[0]] + list(df.columns[-8:])
-    df_seleccionado = df[columnas_a_imprimir]
-    
     # Devolver ranking del equipo en esa temporada
     rank = df.loc[df["Team"] == team_full_name, "Defense_Rank"].values
     return int(rank[0]) if len(rank) > 0 else None
@@ -96,6 +93,8 @@ def calculate_defense_rank(df, season, player, qb_data):
 def qb_rank_in_stat(qb_data,all_qb_in_season, selected_qb, stat):
     if stat == 'Cmp%' or stat == 'Rate':
         stat_value = float(qb_data[stat].iloc[0])
+    elif stat == 'Y/G':
+        stat_value = float(qb_data[stat].sum())
     else:
         stat_value = int(qb_data[stat].sum())
 

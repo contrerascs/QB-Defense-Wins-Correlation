@@ -2,16 +2,17 @@
 import streamlit as st
 from app.sidebar import render_sidebar
 from app.season_metrics import render_season_metrics
-from app.plots import render_plots
+from app.season_plots import render_plots
 from app.carrer_metrics import render_carrer_metrics
 from helpers.data_loader import load_datasets
+from app.carrer_plots import render_carrer_plots
 
 # Cargar los datasets
 qb_df,defense_df,kickers_df = load_datasets()
 
 # Configuración inicial de Streamlit
 st.set_page_config(
-    page_title='QB STATS - TV',
+    page_title='QB vs DEFENSE - STATS',
     page_icon=':football:',
     layout='wide',
     initial_sidebar_state='expanded'
@@ -40,3 +41,4 @@ if selected_season != "Toda la carrera":
     render_plots(qb_data_in_season, selected_qb, selected_season,season_df,season_defense)
 else:
     render_carrer_metrics(qb_data)
+    render_carrer_plots(qb_data,selected_qb,defense_df,qb_df)
