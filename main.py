@@ -15,7 +15,8 @@ st.set_page_config(
     page_title='QB vs DEFENSE - STATS',
     page_icon=':football:',
     layout='wide',
-    initial_sidebar_state='expanded'
+    initial_sidebar_state='expanded',
+    
 )
 
 st.title('Analiza las estadísticas de tu QB favorito')
