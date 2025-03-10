@@ -65,7 +65,7 @@ def normalize(value, min_val, max_val, invert=False):
     norm_value = (value - min_val) / (max_val - min_val) * 100
     return 100 - norm_value if invert else norm_value
 
-def calculate_qb_metrics(df, player):
+def calculate_qb_metrics(df, player, selected_season):
     """Calcula métricas personalizadas para un QB en una escala de 0 a 100."""
     
     # Filtrar las estadísticas del QB
@@ -90,15 +90,27 @@ def calculate_qb_metrics(df, player):
     gwd_norm = normalize(qb_stats["GWD"], *min_max_values["GWD"])
     qbr_norm = normalize(qb_stats["QBR"], *min_max_values["QBR"])
 
-    # Cálculo de métricas personalizadas
-    metrics = {
-        "Presición": (cmp_norm * 0.7) + (aya_norm * 0.3),
-        "Eficiencia": (ya_norm * 0.6) + (rate_norm * 0.4),
-        "Seguridad": (intp_norm * 0.6) + (int_norm * 0.4),
-        "Producción": ((tdp_norm * 0.5) + (td_norm * 0.3) + (yg_norm * 0.2)) / (0.5 + 0.3 + 0.2),
-        "Mobilidad": (sk_norm * 0.7) + (yds1_norm * 0.3),
-        "Clutch": (qc_norm * 0.6) + (gwd_norm * 0.4),
-        "Impacto": (qbr_norm * 0.5) + (rate_norm * 0.3) + (tdp_norm * 0.2)
-    }
+    if selected_season < 2006:
+        # Cálculo de métricas personalizadas
+        metrics = {
+            "Presición": (cmp_norm * 0.7) + (aya_norm * 0.3),
+            "Eficiencia": (ya_norm * 0.6) + (rate_norm * 0.4),
+            "Seguridad": (intp_norm * 0.6) + (int_norm * 0.4),
+            "Producción": ((tdp_norm * 0.5) + (td_norm * 0.3) + (yg_norm * 0.2)) / (0.5 + 0.3 + 0.2),
+            "Mobilidad": (sk_norm * 0.7) + (yds1_norm * 0.3),
+            "Clutch": (qc_norm * 0.6) + (gwd_norm * 0.4),
+            "Impacto": (rate_norm * 0.7) + (tdp_norm * 0.3)
+        }
+    else:
+        # Cálculo de métricas personalizadas
+        metrics = {
+            "Presición": (cmp_norm * 0.7) + (aya_norm * 0.3),
+            "Eficiencia": (ya_norm * 0.6) + (rate_norm * 0.4),
+            "Seguridad": (intp_norm * 0.6) + (int_norm * 0.4),
+            "Producción": ((tdp_norm * 0.5) + (td_norm * 0.3) + (yg_norm * 0.2)) / (0.5 + 0.3 + 0.2),
+            "Mobilidad": (sk_norm * 0.7) + (yds1_norm * 0.3),
+            "Clutch": (qc_norm * 0.6) + (gwd_norm * 0.4),
+            "Impacto": (qbr_norm * 0.5) + (rate_norm * 0.3) + (tdp_norm * 0.2)
+        }
 
     return metrics

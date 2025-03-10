@@ -1,48 +1,48 @@
 # QB vs DEFENSE - STATS
 
-Esta aplicación muestra las estadísticas de los quarterbacks y sus defensas de la NFL desde 1985 hasta 2024, con el objetivo de analizar la correlación entre las victorias y el desempeño de las defensas.
+This application displays the statistics of NFL quarterbacks and their defenses from 1985 to 2024, with the goal of analyzing the correlation between victories and defense performance.
 
-## 🚀 Demo en vivo
-Puedes probar la aplicación aquí: [QB vs DEFENSE - STATS](https://qb-defense-wins-correlation.streamlit.app/).
+## 🚀 Live Demo
+You can try the application here: [QB vs DEFENSE - STATS](https://qb-defense-wins-correlation.streamlit.app/).
 
-## 📌 Objetivo
-El propósito de esta aplicación es demostrar que las victorias en la NFL no dependen únicamente del desempeño de los quarterbacks, sino también de la efectividad de las defensas.
+## 📌 Objetive
+The purpose of this application is to demonstrate that NFL victories do not solely depend on the performance of quarterbacks, but also on the effectiveness of the defenses.
 
-## ✨ Características principales
-- Visualización de estadísticas de QBs y defensas.
-- Modelo para rankear a los QBs en cada temporada.
-- Modelo para rankear a las defensas y ver su desempeño en una temporada específica o en toda su carrera.
-- Gráficos interactivos y tablas comparativas.
+## ✨ Key Features
+- Visualization of QB and defense statistics.
+- Model to rank QBs in each season.
+- Model to rank defenses and see their performance in a specific season or throughout their career.
+- Interactive charts and comparative tables.
 
-## 🛠️ Tecnologías utilizadas
-- **Python**: Lenguaje principal del proyecto.
-- **Streamlit**: Para la creación de la interfaz de la aplicación.
-- **Pandas**: Para el manejo y análisis de datos.
-- **Plotly**: Para la creación de gráficos interactivos.
-- **Selenium y BeautifulSoup**: Para la extracción de datos mediante web scraping.
+## 🛠️ Technologies Used
+- **Python**: Main language of the project.
+- **Streamlit**: For creating the application interface.
+- **Pandas**: For data handling and analysis.
+- **Plotly**: For creating interactive charts.
+- **Selenium y BeautifulSoup**: For data extraction through web scraping.
 
 ## 📦 Instalación
-Sigue estos pasos para ejecutar la aplicación localmente:
+Follow these steps to run the application locally:
 
-1. Clona el repositorio:
+1. Clone the repository:
    ```bash
    git clone QB-Defense-Wins-Correlation
    ```
-2. Instala las dependencias:
+2. Install the dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Ejecuta la aplicación:
+3. Run the application:
    ```bash
    streamlit run app.py
    ```
 
-🙏 Reconocimientos
-Agradezco a Pro Football Reference por proporcionar los datos utilizados en este proyecto.
+🙏 Acknowledgments
+Thanks to Pro Football Reference for providing the data used in this project.
 
-📧 Contacto
-Si tienes preguntas o sugerencias, no dudes en contactarme:
+📧 Contact
+If you have any questions or suggestions, feel free to contact me:
 
-Correo electrónico: sam.contreras.cruz13@gmail.com
+Email: sam.contreras.cruz13@gmail.com
 
-Portafolio: https://contrerascs.github.io/Portafolio-WEB/
+Portfolio: https://contrerascs.github.io/Portafolio-WEB/

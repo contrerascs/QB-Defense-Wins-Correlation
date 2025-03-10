@@ -37,7 +37,7 @@ def render_plots(qb_data, selected_qb, selected_season,season_df,season_defense)
     )
 
     # Obtener métricas normalizadas del QB seleccionado
-    qb_metrics = calculate_qb_metrics(season_df, selected_qb)
+    qb_metrics = calculate_qb_metrics(season_df, selected_qb, selected_season)
 
     # Convertir a listas para la gráfica
     categories = list(qb_metrics.keys())
