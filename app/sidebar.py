@@ -48,7 +48,7 @@ def filter_qb_data(qb_data, selected_season, qb_df, selected_qb):
 def render_sidebar(qb_df, qb_data, selected_qb, qb_id):
     """Renderiza la barra lateral completa."""
     with st.sidebar:
-        st.image('assets/logo.png',use_container_width=True)
+        st.image('assets/sam_logo.png',use_container_width=True)
         col1, col2 = st.columns(2)
 
         # Información del jugador
